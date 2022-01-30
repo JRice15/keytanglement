@@ -53,6 +53,18 @@ def phi_minus(bit0, bit1, qc):
     qc.h(bit0)
     qc.cx(bit0, bit1)
 
+def psi_plus(bit0, bit1, qc):
+    qc.h(bit0)
+    qc.x(bit1)
+    qc.cx(bit0, bit1)
+
+def psi_minus(bit0, bit1, qc):
+    qc.h(bit0)
+    qc.x(bit1)
+    qc.z(bit0)
+    qc.z(bit1)
+    qc.cx(bit0, bit1)
+
 def group00 (pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
@@ -67,12 +79,8 @@ def group01 (pairs):
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
 
-    qc.x(q[pairs[0][0]])
-    qc.h(q[pairs[0][0]])
-    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
-
-    qc.h(q[pairs[1][0]])
-    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+    phi_minus(q[pairs.bit0], q[pairs.bit1])
+    phi_plus(q[pairs.bit2], q[pairs.bit3])
     print(qc)
 
 def group10(pairs):
