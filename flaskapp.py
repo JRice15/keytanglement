@@ -4,6 +4,7 @@ from flask_socketio import send, emit, join_room, leave_room
 
 from utils import ROOT_DIR
 from client import generate_pairings_and_groupings
+from quantum_computer import quantum_compute
 
 app = Flask(__name__)
 with open("secret.key", "r") as f:
@@ -35,10 +36,9 @@ def handle_message(data):
     # show message to this user only
     emit("prepare message", data["user"])
     emit("status update", "Generating random pairings & groupings")
-    user_pairings = generate_pairings_and_groupings(data["user"], 7*120)
+    user_data = generate_pairings_and_groupings(data["user"], 7*120)
     emit("status update", "Running quantum operations")
-    
-    quantum_computer
+    quantum_compute(user_data, user_data)
     emit("status update", "Comparing pairings & groupings with other user")
     key_generation
     emit("message", data)

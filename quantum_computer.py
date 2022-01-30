@@ -192,20 +192,12 @@ Ex. Input: qpair[k] = [ [q1, q2], [q0, q3] ]
     => q1 and q2 are entangled using the phi+ Bell circuit
     => q0 and q3 are entangled using the phi- Bell circuit
 '''
-def main(alice_fname, bob_fname):
-    with open(alice_fname, "r") as f:
-        alice_data = json.load(f)
-    
+def quantum_compute(alice_data, bob_data):
     alice_qpairs = alice_data["pairings"]
     alice_groupcodes = alice_data["groupings"]
-    f.close()
-
-    with open(bob_fname, "r") as f:
-        bob_data = json.load(f)
 
     bob_qpairs = bob_data["pairings"]
     bob_groupcodes = bob_data["groupings"]
-    f.close()
 
     # Keeps track of the indices in Bob's list that were correct guesses
     correct_guesses = []
@@ -230,15 +222,24 @@ def main(alice_fname, bob_fname):
         if (verify_circuit(qc)):
             correct_guesses.append(i)
 
+    return correct_guesses
+
+
+
+def main(alice_fname, bob_fname):
+    with open(alice_fname, "r") as f:
+        alice_data = json.load(f)
+    with open(bob_fname, "r") as f:
+        bob_data = json.load(f)
+
+    correct_guesses = quantum_compute(alice_data, bob_data)
+
     alice_data["correct_measurements"] = correct_guesses
     bob_data["correct-measurements"] = correct_guesses
     with open(alice_fname, "w") as f:
         json.dump(alice_data, f)
-    f.close()
-
     with open(bob_fname, "w") as f:
         json.dump(bob_data, f)
-    f.close()
 
 
 if __name__ == "__main__":
