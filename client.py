@@ -21,20 +21,9 @@ pairings_list = [[[0, 1], [2, 3]], [[0, 2], [1, 3]], [[0, 3], [1, 2]]]
 
 bell_state_grouping = [0, 1, 2, 3]
 
-def open_file(filename):
-    try:
-        fp = open(filename, "w+")
-        return fp
-    except Exception as e:
-        print("Error opening file: ", e)
-        exit(1)
-        
 
-def main():
-    #get inputs
-    filename = sys.argv[1]
-    key_length = int(sys.argv[2])
 
+def generate_pairings_and_groupings(key_length):
     #start random generation
     random.seed() #uses system time
     pairings = []
@@ -53,12 +42,20 @@ def main():
         "groupings": groupings
     }
 
-    print("here")
-    #output 
-    fp = open_file(filename)
-    json.dump(json_output, fp)
-    fp.close()
-    return
+    return json_output
+
+
+def main():
+    #get inputs
+    outfile = sys.argv[1]
+    key_length = int(sys.argv[2])
+
+    json_output = generate_pairings_and_groupings(key_length)
+
+    # output 
+    with open(outfile) as fp:
+        json.dump(json_output, fp)
+
 
 if __name__ == "__main__":
     main()

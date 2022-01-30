@@ -1,0 +1,29 @@
+<!-- ./public/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>First website</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+  </head>
+  <body>
+
+    <main>
+      <header>
+        <h1>Keytanglement Chat</h1>
+      </header>
+
+      <p>Welcome! Please enter the name of the room you would like to join</p>
+
+      <form method="POST">
+        <input type="text" placeholder="Room name" name="roomname"/>
+        <button>Join</button>
+      </form>
+    </main>
+
+    <!-- Include jquery, cookies, socket.io (client-side) and your own code -->
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+  </body>
+</html>
