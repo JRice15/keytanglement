@@ -22,7 +22,7 @@ from qiskit.circuit import QuantumRegister, ClassicalRegister, QuantumCircuit
 from quantuminspire.credentials import get_basic_authentication
 from quantuminspire.qiskit import QI
 
-print("Authenticating")
+# print("Authenticating")
 QI_URL = os.getenv('API_URL', 'https://api.quantum-inspire.com/')
 
 with open("qi-auth.json", "r") as f:
@@ -77,7 +77,7 @@ def circuit00(pairs):
     phi_plus(q[pairs.bit0], q[pairs.bit1], qc)
     phi_minus(q[pairs.bit2], q[pairs.bit3], qc)
     print("Alice chose group 00")
-    print(qc)
+    # print(qc)
     return qc, q
 
 def circuit01(pairs):
@@ -88,7 +88,7 @@ def circuit01(pairs):
     phi_minus(q[pairs.bit0], q[pairs.bit1], qc)
     phi_plus(q[pairs.bit2], q[pairs.bit3], qc)
     print("Alice chose group 01")
-    print(qc)
+    # print(qc)
     return qc, q
 
 def circuit10(pairs):
@@ -99,7 +99,7 @@ def circuit10(pairs):
     psi_plus(q[pairs.bit0], q[pairs.bit1], qc)
     psi_minus(q[pairs.bit2], q[pairs.bit3], qc)
     print("Alice chose group 10")
-    print(qc)
+    # print(qc)
     return qc, q
 
 def circuit11(pairs):
@@ -110,7 +110,7 @@ def circuit11(pairs):
     psi_minus(q[pairs.bit0], q[pairs.bit1], qc)
     psi_plus(q[pairs.bit2], q[pairs.bit3], qc)
     print("Alice chose group 11")
-    print(qc)
+    # print(qc)
     return qc, q
 
 ################################
@@ -147,17 +147,17 @@ def reverse_circuit00(pairs, q, qc):
 def reverse_circuit01(pairs, q, qc):
     phi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     phi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
-    print(qc)
+    # print(qc)
 
 def reverse_circuit10(pairs, q, qc):
     psi_plus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     psi_minus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
-    print(qc)
+    # print(qc)
 
 def reverse_circuit11(pairs, q, qc):
     psi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     psi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
-    print(qc)
+    # print(qc)
 
 def verify_circuit(qc):
     job = execute(qc, backend=QI_BACKEND, shots=256)
@@ -166,7 +166,8 @@ def verify_circuit(qc):
 
     # If Bob guessed Alice's qubit-pairs and Bell states correctly,
     # the final state of all qubits should be 0s
-    if (len(histogram.keys()) == 1 and histogram.keys()[0] == "0000"):
+    state_list = list(histogram.keys())
+    if (len(state_list) == 1 and state_list[0] == "0000"):
         return 1
     return 0
 
@@ -194,15 +195,17 @@ Ex. Input: qpair[k] = [ [q1, q2], [q0, q3] ]
 def main(alice_fname, bob_fname):
     with open(alice_fname, "r") as f:
         alice_data = json.load(f)
-
+    
     alice_qpairs = alice_data["pairings"]
     alice_groupcodes = alice_data["groupings"]
+    f.close()
 
-    with open(bob_fname, "ra") as f:
+    with open(bob_fname, "r") as f:
         bob_data = json.load(f)
 
     bob_qpairs = bob_data["pairings"]
     bob_groupcodes = bob_data["groupings"]
+    f.close()
 
     # Keeps track of the indices in Bob's list that were correct guesses
     correct_guesses = []
@@ -213,19 +216,29 @@ def main(alice_fname, bob_fname):
         alice_gc = alice_groupcodes[i]
         bob_gc = bob_groupcodes[i]
 
+        qpairs = Pairing(alice_qpairs[i][0], alice_qpairs[i][1])
+
         # Build Alice's circuits based on her inputs
-        qc, q = entangling_circuit_map[alice_gc](alice_qpairs[i])
+        qc, q = entangling_circuit_map[alice_gc](qpairs)
+
+        qpairs = Pairing(bob_qpairs[i][0], bob_qpairs[i][1])
 
         # Run Bob's test circuits on top of Alice's input
-        reversal_circuit_map[bob_gc](bob_qpairs[i], q, qc)
+        reversal_circuit_map[bob_gc](qpairs, q, qc)
 
         # Add the index to the list of correct guesses to return to the users
         if (verify_circuit(qc)):
             correct_guesses.append(i)
-    
-    output = { "correct_measurements": correct_guesses}
-    json.dump(output, alice_fname)
-    json.dump(output, bob_fname)
+
+    alice_data["correct_measurements"] = correct_guesses
+    bob_data["correct-measurements"] = correct_guesses
+    with open(alice_fname, "w") as f:
+        json.dump(alice_data, f)
+    f.close()
+
+    with open(bob_fname, "w") as f:
+        json.dump(bob_data, f)
+    f.close()
 
 
 if __name__ == "__main__":

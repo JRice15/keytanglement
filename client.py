@@ -53,7 +53,6 @@ def main():
         "groupings": groupings
     }
 
-    print("here")
     #output 
     fp = open_file(filename)
     json.dump(json_output, fp)
