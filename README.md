@@ -3,9 +3,9 @@
 ### MIT iQuHACK 2022
 ### QuTech Quantum Key Distribution Challenge
 
-Project at: [keytanglement.live](keytanglement.live)
-iQuHACK presentation [slides](https://docs.google.com/presentation/d/1JUC_5XKEcqWcx8vDHGJmTW_9klX04Cl1-xuXPzgNxpI/edit?usp=sharing)
-Jupyter Notebook in repo [link](https://github.com/JRice15/keytanglement/blob/main/jupyter_notebook/)
+- Project at: [keytanglement.live](keytanglement.live)
+- iQuHACK presentation [slides](https://docs.google.com/presentation/d/1JUC_5XKEcqWcx8vDHGJmTW_9klX04Cl1-xuXPzgNxpI/edit?usp=sharing)
+- Jupyter Notebook in repo [link](https://github.com/JRice15/keytanglement/blob/main/jupyter_notebook/)
 
 
 Contributors 
