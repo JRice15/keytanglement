@@ -1,4 +1,3 @@
-// ./public/javascript.js
 
 // Get the current username from the cookies
 var user = cookie.get('user');
@@ -15,7 +14,6 @@ if (!user) {
 }
 
 var socket = io();
-
 
 
 // When the form is submitted
@@ -37,8 +35,8 @@ $('form').submit(function (e) {
   $(e.target).find('input').focus();
 });
 
-socket.on('prepare message', function(user) {
-  $('.chat').append('<p><i><strong>' + user + '</strong> is generating a message </i>')
+socket.on('prepare message', function(data) {
+  $('.chat').append('<p><i><strong>' + data.user + '</strong> is generating a ' + data.msglen + ' bit message </i>')
 })
 
 // When we receive a message
@@ -52,20 +50,27 @@ socket.on('status update', function (msg) {
   $('.chat').append('<p><i>... ' + msg + '</i></p>');
 });
 
-// // join the room if it is a room
-// if (window.location.pathname.startsWith("/room/")) {
-//   var roomname = window.location.pathname.split("/")[2]
-//   socket.emit("join", {
-//     user: cookie.get('user') || 'Anonymous',
-//     roomname: roomname
-//   })
-//   var room = io.adapter.rooms[roomname];
-//   console.log(Object.keys(room).length);
-// }
+// Handle status update
+socket.on('bad message', function (user) {
+  $('.chat').append('<p><i>... ' + user + "'s message is not correctly formatted (must be ASCII)</i></p>");
+});
+
+socket.on('attacker', function (user) {
+  $('.chat').append('<p><strong>There is an attacker listening!</strong></p>');
+});
+
+// join the room if it is a room
+if (window.location.pathname.startsWith("/room/")) {
+  var roomname = window.location.pathname.split("/")[2]
+  socket.emit("join", {
+    user: cookie.get('user') || 'Anonymous',
+    roomname: roomname
+  })
+}
 
 
-// // join notice
-// socket.on('join notice', function (user) {
-//   $('.chat').append('<p><strong><i>' + user + '</strong> has joined the room</i></p>');
-// });
+// join notice
+socket.on('join notice', function (user) {
+  $('.chat').append('<p><strong><i>' + user + '</strong> has joined the room</i></p>');
+});
 

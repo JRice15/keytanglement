@@ -222,7 +222,10 @@ def quantum_compute(alice_data, bob_data):
         if (verify_circuit(qc)):
             correct_guesses.append(i)
 
-    return correct_guesses
+    alice_data["correct_measurements"] = correct_guesses
+    bob_data["correct-measurements"] = correct_guesses
+
+    return alice_data, bob_data
 
 
 
@@ -232,10 +235,8 @@ def main(alice_fname, bob_fname):
     with open(bob_fname, "r") as f:
         bob_data = json.load(f)
 
-    correct_guesses = quantum_compute(alice_data, bob_data)
+    alice_data, bob_data = quantum_compute(alice_data, bob_data)
 
-    alice_data["correct_measurements"] = correct_guesses
-    bob_data["correct-measurements"] = correct_guesses
     with open(alice_fname, "w") as f:
         json.dump(alice_data, f)
     with open(bob_fname, "w") as f:
