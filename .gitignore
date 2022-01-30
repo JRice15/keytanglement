@@ -5,5 +5,3 @@ __pycache__
 
 # config files
 qi-auth.json
-*.json
-
