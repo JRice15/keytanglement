@@ -72,29 +72,42 @@ def group00 (pairs):
 
     phi_plus(q[pairs.bit0], q[pairs.bit1], qc)
     phi_minus(q[pairs.bit2], q[pairs.bit3], qc)
+    print("Alice chose group 00")
     print(qc)
+    return qc, q
 
 def group01 (pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
 
-    phi_minus(q[pairs.bit0], q[pairs.bit1])
-    phi_plus(q[pairs.bit2], q[pairs.bit3])
+    phi_minus(q[pairs.bit0], q[pairs.bit1], qc)
+    phi_plus(q[pairs.bit2], q[pairs.bit3], qc)
+    print("Alice chose group 01")
     print(qc)
+    return qc, q
 
 def group10(pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
 
-    qc.h(q[pairs[0][0]])
-    qc.x(q[pairs[0][1]])
-    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
+    psi_plus(q[pairs.bit0], q[pairs.bit1], qc)
+    psi_minus(q[pairs.bit2], q[pairs.bit3], qc)
+    print("Alice chose group 10")
+    print(qc)
+    return qc, q
 
-    qc.h(q[pairs[1][0]])
-    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+def group11 (pairs):
+    q = QuantumRegister(qbits)
+    b = ClassicalRegister(qbits)
+    qc = QuantumCircuit(q, b)
 
+    psi_minus(q[pairs.bit0], q[pairs.bit1], qc)
+    psi_plus(q[pairs.bit2], q[pairs.bit3], qc)
+    print("Alice chose group 11")
+    print(qc)
+    return qc, q
 
 def build_circuit(bases):
     print("Building circuit")
@@ -137,6 +150,10 @@ def execute_circuit(circuit):
 def main():
     alice_pairing = Pairing([0, 1], [2, 3])
     group00(alice_pairing)
+    group01(alice_pairing)
+    group10(alice_pairing)
+    group11(alice_pairing)
+
 
 
 if __name__ == "__main__":
