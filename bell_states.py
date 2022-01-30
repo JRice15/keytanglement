@@ -109,6 +109,47 @@ def group11 (pairs):
     print(qc)
     return qc, q
 
+def phi_plus_reverse(bit0, bit1, qc):
+    qc.cx(bit0, bit1)
+    qc.h(bit0)
+
+def phi_minus_reverse(bit0, bit1, qc):
+    qc.cx(bit0, bit1)
+    qc.h(bit0)
+    qc.x(bit0)
+
+def psi_plus_reverse(bit0, bit1, qc):
+    qc.cx(bit0, bit1)
+    qc.x(bit1)
+    qc.h(bit0)
+
+def psi_minus_reverse(bit0, bit1, qc):
+    qc.cx(bit0, bit1)
+    qc.z(bit1)
+    qc.z(bit0)
+    qc.x(bit1)
+    qc.h(bit0)
+
+def measure00(pairs, q, qc):
+    phi_plus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
+    phi_minus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
+    print(qc)
+
+def measure01(pairs, q, qc):
+    phi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
+    phi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
+    print(qc)
+
+def measure10(pairs, q, qc):
+    psi_plus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
+    psi_minus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
+    print(qc)
+
+def measure11(pairs, q, qc):
+    psi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
+    psi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
+    print(qc)
+
 def build_circuit(bases):
     print("Building circuit")
     qbits = len(bases)
@@ -149,10 +190,18 @@ def execute_circuit(circuit):
 
 def main():
     alice_pairing = Pairing([0, 1], [2, 3])
-    group00(alice_pairing)
-    group01(alice_pairing)
-    group10(alice_pairing)
-    group11(alice_pairing)
+    qc, q = group00(alice_pairing)
+    measure00(alice_pairing, q, qc)
+
+    qc, q = group01(alice_pairing)
+    measure01(alice_pairing, q, qc)
+
+    qc, q = group10(alice_pairing)
+    measure10(alice_pairing, q, qc)
+
+    qc, q = group11(alice_pairing)
+    measure11(alice_pairing, q, qc)
+
 
 
 
