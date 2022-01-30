@@ -39,7 +39,8 @@ def check_for_eavesdropper(correction_bits):
     #to see if there has 
     random.seed()
     for _ in range(correction_bits):
-        check_index = random(0, len(alice_correct_pairings))
+        check_index = random.randrange(0, len(alice_correct_pairings))
+        # print("Checking index {0} for consistency".format(check_index))
         if (alice_correct_pairings[check_index] == bob_correct_pairings[check_index]
             and  alice_correct_groupings[check_index] == bob_correct_groupings[check_index]):
             #if the bits check out, we must remove from the key
