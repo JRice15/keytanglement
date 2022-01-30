@@ -22,10 +22,12 @@ from qiskit.circuit import QuantumRegister, ClassicalRegister, QuantumCircuit
 from quantuminspire.credentials import get_basic_authentication
 from quantuminspire.qiskit import QI
 
+from utils import ROOT_DIR
+
 # print("Authenticating")
 QI_URL = os.getenv('API_URL', 'https://api.quantum-inspire.com/')
 
-with open("qi-auth.json", "r") as f:
+with open(ROOT_DIR + "qi-auth.json", "r") as f:
     auth = json.load(f)
 
 project_name = 'Keytanglement'
