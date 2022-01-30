@@ -1,0 +1,33 @@
+<!-- ./public/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>First website</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+  </head>
+  <body>
+
+    <main>
+      <header>
+        <h1>Keytanglement Chat</h1>
+        <h2>{{roomname}}</h2>
+      </header>
+
+      <section class="chat"></section>
+
+      <form>
+        <input type="text" placeholder="Your message here" />
+        <button>Send</button>
+      </form>
+    </main>
+
+    <!-- Include jquery, cookies, socket.io (client-side) and your own code -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://unpkg.com/cookie_js@1.2.2/cookie.min.js"></script>
+    <script src="https://unpkg.com/socket.io-client@2/dist/socket.io.slim.js"></script>
+    <script src="{{url_for('static', filename='javascript.js')}}"></script>
+  </body>
+</html>

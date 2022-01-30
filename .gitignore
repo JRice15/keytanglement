@@ -1,9 +1,12 @@
 
-# random
+# machine-generated
 __pycache__
 .DS_Store
 
-# config files
+# secret files
 qi-auth.json
+*.key
+
+# temp files
 *.json
 
