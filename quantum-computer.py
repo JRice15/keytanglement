@@ -14,6 +14,7 @@ Copyright 2018-19 QuTech Delft. Licensed under the Apache License, Version 2.0.
 """
 import os
 import json
+import sys
 
 from qiskit import execute
 from qiskit.circuit import QuantumRegister, ClassicalRegister, QuantumCircuit
@@ -65,7 +66,10 @@ def psi_minus(bit0, bit1, qc):
     qc.z(bit1)
     qc.cx(bit0, bit1)
 
-def group00 (pairs):
+#####################################
+# Generate pair-entangling circuits #
+#####################################
+def circuit00(pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
@@ -76,7 +80,7 @@ def group00 (pairs):
     print(qc)
     return qc, q
 
-def group01 (pairs):
+def circuit01(pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
@@ -87,7 +91,7 @@ def group01 (pairs):
     print(qc)
     return qc, q
 
-def group10(pairs):
+def circuit10(pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
@@ -98,7 +102,7 @@ def group10(pairs):
     print(qc)
     return qc, q
 
-def group11 (pairs):
+def circuit11(pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
@@ -109,6 +113,9 @@ def group11 (pairs):
     print(qc)
     return qc, q
 
+################################
+# Generate Reverse Bell States #
+################################
 def phi_plus_reverse(bit0, bit1, qc):
     qc.cx(bit0, bit1)
     qc.h(bit0)
@@ -130,81 +137,100 @@ def psi_minus_reverse(bit0, bit1, qc):
     qc.x(bit1)
     qc.h(bit0)
 
-def measure00(pairs, q, qc):
+#############################################
+# Generate Reverse Pair-Entangling Circuits #
+#############################################
+def reverse_circuit00(pairs, q, qc):
     phi_plus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     phi_minus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
-    print(qc)
 
-def measure01(pairs, q, qc):
+def reverse_circuit01(pairs, q, qc):
     phi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     phi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
     print(qc)
 
-def measure10(pairs, q, qc):
+def reverse_circuit10(pairs, q, qc):
     psi_plus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     psi_minus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
     print(qc)
 
-def measure11(pairs, q, qc):
+def reverse_circuit11(pairs, q, qc):
     psi_minus_reverse(q[pairs.bit0], q[pairs.bit1], qc)
     psi_plus_reverse(q[pairs.bit2], q[pairs.bit3], qc)
     print(qc)
 
-def build_circuit(bases):
-    print("Building circuit")
-    qbits = len(bases)
-    q = QuantumRegister(qbits)
-    b = ClassicalRegister(qbits)
-    circuit = QuantumCircuit(q, b)
+def verify_circuit(qc):
+    job = execute(qc, backend=QI_BACKEND, shots=256)
+    result = job.result()
+    histogram = result.get_counts(qc)
 
-    circuit.h(q[0])
-    for i in range(qbits-1):
-        circuit.cx(q[i], q[i+1])
-    for i,basis in enumerate(bases):
-        if basis == "y":
-            circuit.sdg(q[i])
-            circuit.h(q[i])
-        elif basis == "x":
-            ...
-        elif basis == "z":
-            circuit.h(q[i])
-        else:
-            raise ValueError("bruh")
+    # If Bob guessed Alice's qubit-pairs and Bell states correctly,
+    # the final state of all qubits should be 0s
+    if (len(histogram.keys()) == 1 and histogram.keys()[0] == "0000"):
+        return 1
+    return 0
 
-    circuit.measure_all
+entangling_circuit_map = {0: circuit00, 1: circuit01, 2: circuit10, 3: circuit11}
+reversal_circuit_map = {0: reverse_circuit00, 1: reverse_circuit01, 2: reverse_circuit10, 3: reverse_circuit11}
 
-    return circuit
+'''
+The scripts receives a file containing json objects of qubit-pairs and group codes in order to
+perform key generation. Qubit-pairs and group codes are associated based
+on their indices within the list (qpair[k] is associated with groupcode[k]).
+An element in the qubit-pair list consists of 2 pairs of 2 qubits in our 4 qubit system
+(ex. [[q0, q3], [q1, q2]]). Each element in the group code list consists a group code that maps
+to a given pair of Bell states (see README for mappings of group codes to Bell states). The Bell
+states corresponding to the group code will be used to entangle the qubits in each pair of the 
+corresponding qubit-pairs.
 
-def execute_circuit(circuit):
-    print("Executing")
-    qi_job = execute(circuit, backend=QI_BACKEND, shots=256)
-    qi_result = qi_job.result()
-    histogram = qi_result.get_counts(circuit)
-    print('\nState\tCounts')
-    [print('{0}\t\t{1}'.format(state, counts)) for state, counts in histogram.items()]
-    # Print the full state probabilities histogram
-    probabilities_histogram = qi_result.get_probabilities(circuit)
-    print('\nState\tProbabilities')
-    [print('{0}\t\t{1}'.format(state, val)) for state, val in probabilities_histogram.items()]
+Ex. Input: qpair[k] = [ [q1, q2], [q0, q3] ]
+           groupcode[k] = 00 
+    
+    Group code 00 -> Bell state pair [ phi+, phi- ]
 
+    => q1 and q2 are entangled using the phi+ Bell circuit
+    => q0 and q3 are entangled using the phi- Bell circuit
+'''
+def main(alice_fname, bob_fname):
+    with open(alice_fname, "r") as f:
+        alice_data = json.load(f)
 
-def main():
-    alice_pairing = Pairing([0, 1], [2, 3])
-    qc, q = group00(alice_pairing)
-    measure00(alice_pairing, q, qc)
+    alice_qpairs = alice_data["pairings"]
+    alice_groupcodes = alice_data["groupings"]
 
-    qc, q = group01(alice_pairing)
-    measure01(alice_pairing, q, qc)
+    with open(bob_fname, "ra") as f:
+        bob_data = json.load(f)
 
-    qc, q = group10(alice_pairing)
-    measure10(alice_pairing, q, qc)
+    bob_qpairs = bob_data["pairings"]
+    bob_groupcodes = bob_data["groupings"]
 
-    qc, q = group11(alice_pairing)
-    measure11(alice_pairing, q, qc)
+    # Keeps track of the indices in Bob's list that were correct guesses
+    correct_guesses = []
 
+    for i in range(len(alice_qpairs)): # iterate over  qubit-pairs
 
+        # Obtain both users' group codes
+        alice_gc = alice_groupcodes[i]
+        bob_gc = bob_groupcodes[i]
+
+        # Build Alice's circuits based on her inputs
+        qc, q = entangling_circuit_map[alice_gc](alice_qpairs[i])
+
+        # Run Bob's test circuits on top of Alice's input
+        reversal_circuit_map[bob_gc](bob_qpairs[i], q, qc)
+
+        # Add the index to the list of correct guesses to return to the users
+        if (verify_circuit(qc)):
+            correct_guesses.append(i)
+    
+    output = { "correct_measurements": correct_guesses}
+    json.dump(output, alice_fname)
+    json.dump(output, bob_fname)
 
 
 if __name__ == "__main__":
-     main()
-
+    if len(sys.argv) != 3:
+        print("Usage: python3 quantum-computer.py alice_filename bob_filename")
+        exit(1)
+    
+    main(sys.argv[1], sys.argv[2])
