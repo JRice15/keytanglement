@@ -1,12 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask,  render_template
+
+from utils import ROOT_DIR
 
 app = Flask(__name__)
 
-
 @app.route('/')
-def hello():
-    return "yooooo!"
-    return flask.render_template("index.html")
+def root():
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run()
