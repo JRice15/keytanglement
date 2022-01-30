@@ -33,6 +33,30 @@ QI.set_authentication(authentication, QI_URL, project_name=project_name)
 QI_BACKEND = QI.get_backend('QX single-node simulator')
 
 
+def group00 (pairs, qbits):
+    q = QuantumRegister(qbits)
+    b = ClassicalRegister(qbits)
+    qc = QuantumCircuit(q, b)
+
+    qc.h(q[pairs[0][0]])
+    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
+    qc.x(q[pairs[1][0]])
+    qc.h(q[pairs[1][0]])
+    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+    print(qc)
+
+def group01 (pairs):
+    q = QuantumRegister(qbits)
+    b = ClassicalRegister(qbits)
+    qc = QuantumCircuit(q, b)
+
+    qc.x(q[pairs[0][0]])
+    qc.h(q[pairs[0][0]])
+    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
+
+    qc.h(q[pairs[1][0]])
+    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+    print(qc)
 
 def build_circuit(bases):
     print("Building circuit")
@@ -73,10 +97,14 @@ def execute_circuit(circuit):
 
 
 def main():
-    c = build_circuit(["z", "z"])
-    execute_circuit(c)
+    qbits = 4
+    alice_pairing = [[1, 2], [3, 4]]
+    print("hi")
+    print(alice_pairing[0], qbits)
+   # group00(alice_pairing)
 
 
 if __name__ == "__main__":
-    main()
+    print("hi")
+    # main()
 

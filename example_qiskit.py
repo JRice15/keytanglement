@@ -33,40 +33,60 @@ QI.set_authentication(authentication, QI_URL, project_name=project_name)
 QI_BACKEND = QI.get_backend('QX single-node simulator')
 
 
-
-def build_circuit(bases):
-    print("Building circuit")
-    qbits = len(bases)
+'''
+Builds a quantum circuit to perform the bases measurements
+specified by each user
+'''
+def build_circuit(chosenBases):
+    print("Building circuit...")
+    qbits = len(chosenBases)
     q = QuantumRegister(qbits)
-    b = ClassicalRegister(qbits)
-    circuit = QuantumCircuit(q, b)
+    c = ClassicalRegister(qbits)
+    circuit = QuantumCircuit(q, c)
 
+    # Set up initial Hadamard for qubit 0
     circuit.h(q[0])
+
+    # CNOT all qubit pairs
     for i in range(qbits-1):
         circuit.cx(q[i], q[i+1])
-        circuit.cx(q[i], q[i+1])
-    for i,basis in enumerate(bases):
-        if basis == "y":
+    
+    # Add in the chosen basis measurements for each user
+    for i,basis in enumerate(chosenBases):
+        if basis == "y": # SDG + H gate prepare qubit for y-basis measurement
             circuit.sdg(q[i])
             circuit.h(q[i])
-        elif basis == "x":
-            ...
-        elif basis == "z":
+        elif basis == "x": # H gate prepares qubit for x-basis measruement
             circuit.h(q[i])
+        elif basis == "z": # z-basis measurement is the default
+            pass
         else:
-            raise ValueError("bruh")
+            raise ValueError("Invalid basis specified by user")
+    
+    print("Output results:")
+    for i in range(qbits):
+        circuit.measure(q[i], c[i])
+        print("Qubit {0}: {1}".format(i, c[i]))
 
-    circuit.measure_all
+    print(c)
 
+    
+    print(circuit)
     return circuit
 
+'''
+Executes a provided quantum circuits and performs measurements
+on each qubit
+'''
 def execute_circuit(circuit):
-    print("Executing")
-    qi_job = execute(circuit, backend=QI_BACKEND, shots=256)
+    print("Executing circuit...")
+
+    qi_job = execute(circuit, backend=QI_BACKEND, shots=4096)
     qi_result = qi_job.result()
     histogram = qi_result.get_counts(circuit)
     print('\nState\tCounts')
     [print('{0}\t\t{1}'.format(state, counts)) for state, counts in histogram.items()]
+    
     # Print the full state probabilities histogram
     probabilities_histogram = qi_result.get_probabilities(circuit)
     print('\nState\tProbabilities')
@@ -74,7 +94,7 @@ def execute_circuit(circuit):
 
 
 def main():
-    c = build_circuit()
+    c = build_circuit(["z","y"])
     execute_circuit(c)
 
 
