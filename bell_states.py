@@ -31,18 +31,35 @@ project_name = 'Keytanglement'
 authentication = get_basic_authentication(auth["email"], auth["pass"])
 QI.set_authentication(authentication, QI_URL, project_name=project_name)
 QI_BACKEND = QI.get_backend('QX single-node simulator')
+qbits = 4
+
+class Pairing:
+    def __init__(self, pair1, pair2):
+        self.bit0 = pair1[0]
+        self.bit1 = pair1[1]
+        self.bit2 = pair2[0]
+        self.bit3 = pair2[1]
 
 
-def group00 (pairs, qbits):
+########################
+# Generate Bell States #
+########################
+def phi_plus(bit0, bit1, qc):
+    qc.h(bit0)
+    qc.cx(bit0, bit1)
+
+def phi_minus(bit0, bit1, qc):
+    qc.x(bit0)
+    qc.h(bit0)
+    qc.cx(bit0, bit1)
+
+def group00 (pairs):
     q = QuantumRegister(qbits)
     b = ClassicalRegister(qbits)
     qc = QuantumCircuit(q, b)
 
-    qc.h(q[pairs[0][0]])
-    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
-    qc.x(q[pairs[1][0]])
-    qc.h(q[pairs[1][0]])
-    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+    phi_plus(q[pairs.bit0], q[pairs.bit1], qc)
+    phi_minus(q[pairs.bit2], q[pairs.bit3], qc)
     print(qc)
 
 def group01 (pairs):
@@ -57,6 +74,19 @@ def group01 (pairs):
     qc.h(q[pairs[1][0]])
     qc.cx(q[pairs[1][0]], q[pairs[1][1]])
     print(qc)
+
+def group10(pairs):
+    q = QuantumRegister(qbits)
+    b = ClassicalRegister(qbits)
+    qc = QuantumCircuit(q, b)
+
+    qc.h(q[pairs[0][0]])
+    qc.x(q[pairs[0][1]])
+    qc.cx(q[pairs[0][0]], q[pairs[0][1]])
+
+    qc.h(q[pairs[1][0]])
+    qc.cx(q[pairs[1][0]], q[pairs[1][1]])
+
 
 def build_circuit(bases):
     print("Building circuit")
@@ -97,14 +127,10 @@ def execute_circuit(circuit):
 
 
 def main():
-    qbits = 4
-    alice_pairing = [[1, 2], [3, 4]]
-    print("hi")
-    print(alice_pairing[0], qbits)
-   # group00(alice_pairing)
+    alice_pairing = Pairing([0, 1], [2, 3])
+    group00(alice_pairing)
 
 
 if __name__ == "__main__":
-    print("hi")
-    # main()
+     main()
 
