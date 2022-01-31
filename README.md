@@ -28,10 +28,10 @@ our implementation, and its success can be found in the accompanying Jupyter not
 
 ### Software Arch
 #### Key Generation
-![KeyArch](jupyter_notebook/SoftwareArch_KeyGeneration.png]
+![KeyArch](jupyter_notebook/SoftwareArch_KeyGeneration.png)
 
 #### Secure Chat
-![ChatArch](jupyter_notebook/SoftwareArch_SecureChat.png]
+![ChatArch](jupyter_notebook/SoftwareArch_SecureChat.png)
 
 Repository Organization:
 - README.md [here]
